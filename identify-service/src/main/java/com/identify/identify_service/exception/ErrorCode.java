@@ -1,14 +1,16 @@
 package com.identify.identify_service.exception;
 
-public class ErrorCode {
+public enum ErrorCode {
     
-    public ErrorCode(int code, String message) {
-        this.code = code;
-        this.message = message;
-    }
+    USER_EXISTED(1003, "Hoàng Hà đẹp trái");
 
     private int code;
     private String message;
+    // Contructor
+    private ErrorCode(int code, String message) {
+        this.code = code;
+        this.message = message;
+    }
     
     public int getCode() {
         return code;

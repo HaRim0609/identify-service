@@ -8,10 +8,14 @@ import org.springframework.web.bind.annotation.RestController;
 import com.identify.identify_service.dto.request.ApiResponse;
 import com.identify.identify_service.dto.request.UserCreationRequest;
 import com.identify.identify_service.dto.request.UserUpdateRequest;
+import com.identify.identify_service.dto.response.UserResponse;
 import com.identify.identify_service.entity.User;
 import com.identify.identify_service.service.UserService;
 
 import jakarta.validation.Valid;
+import lombok.AccessLevel;
+import lombok.RequiredArgsConstructor;
+import lombok.experimental.FieldDefaults;
 
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -25,10 +29,13 @@ import org.springframework.web.bind.annotation.PathVariable;
 
 
 @RestController // Annotation này đánh dấu class là một REST controller, cho phép nó xử lý các yêu cầu HTTP và trả về dữ liệu dưới dạng JSON hoặc XML.
-@RequestMapping("/users") // Annotation này định nghĩa đường dẫn cơ sở cho tất cả các phương thức trong controller. Trong trường hợp này, tất cả các phương thức sẽ được truy cập thông qua đường dẫn /users. 
+// Annotation này định nghĩa đường dẫn cơ sở cho tất cả các phương thức trong controller. Trong trường hợp này, tất cả các phương thức sẽ được truy cập thông qua đường dẫn /users. 
+@RequestMapping("/users")
+@RequiredArgsConstructor 
+@FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class UserController {
-    @Autowired // Annotation này cho phép Spring tự động tiêm (inject) một instance của UserService vào controller. 
-    private UserService userService;
+    // @Autowired // Annotation này cho phép Spring tự động tiêm (inject) một instance của UserService vào controller. 
+    UserService userService;
     
     @PostMapping
     ApiResponse<User> createUser(@RequestBody @Valid UserCreationRequest request) {
@@ -43,12 +50,12 @@ public class UserController {
     }
     
     @GetMapping("/{userId}")
-    User getUser(@PathVariable("userId") long userID){
+    UserResponse getUser(@PathVariable("userId") long userID){
         return userService.getUser(userID);
     }
 
     @PutMapping("/{userId}")
-    User updateUser(@PathVariable("userId") long userId, @RequestBody UserUpdateRequest request){
+    UserResponse updateUser(@PathVariable("userId") long userId, @RequestBody UserUpdateRequest request){
         return userService.updateUser(userId, request);
     }
 

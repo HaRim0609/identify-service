@@ -1,7 +1,6 @@
-package com.identify.identify_service.dto.request;
+package com.identify.identify_service.dto.response;
 
 import java.time.LocalDate;
-
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -13,13 +12,12 @@ import lombok.experimental.FieldDefaults;
 @NoArgsConstructor
 @AllArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class UserUpdateRequest {
-    
+public class UserResponse {
+    long id;
+
     String username;
     String password;
     String firstName;
     String lastName;
     LocalDate dab;
-    
-
 }

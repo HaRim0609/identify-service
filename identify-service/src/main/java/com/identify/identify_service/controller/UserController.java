@@ -41,6 +41,7 @@ public class UserController {
     ApiResponse<User> createUser(@RequestBody @Valid UserCreationRequest request) {
         ApiResponse<User> apiResponse = new ApiResponse<>();
         apiResponse.setResult(userService.createUser(request));
+        apiResponse.setMessage("Tạo người dùng thành công");
         return apiResponse;
     }
 

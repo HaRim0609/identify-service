@@ -8,6 +8,7 @@ import lombok.Builder;
 // import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+// import lombok.Builder.Default;
 import lombok.experimental.FieldDefaults;
 
 @Data
@@ -17,7 +18,9 @@ import lombok.experimental.FieldDefaults;
 // Ông Builder này sẽ giúp tạo data ko cần full các thuộc tính
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @JsonInclude(JsonInclude.Include.NON_NULL)
+// Annotation bên trên này giúp tạo các giá trị not null sẽ không được đưa vào json
 public class ApiResponse<T> {
+    @Builder.Default
     int code = 1000;
     String message;
     T result;

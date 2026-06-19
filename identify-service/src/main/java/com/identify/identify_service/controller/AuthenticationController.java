@@ -5,13 +5,17 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.identify.identify_service.dto.request.ApiResponse;
 import com.identify.identify_service.dto.request.AuthenticationRequest;
+import com.identify.identify_service.dto.request.IntrospecRequest;
 import com.identify.identify_service.dto.response.AuthenticationResponse;
+import com.identify.identify_service.dto.response.IntrospecResponse;
 import com.identify.identify_service.service.AuthenticationService;
+import com.nimbusds.jose.JOSEException;
 
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 
+import java.text.ParseException;
 
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -24,16 +28,24 @@ import org.springframework.web.bind.annotation.RequestBody;
 public class AuthenticationController {
     AuthenticationService authenticationService;
 
-    @PostMapping("/log-in")
+    @PostMapping("/token")
     ApiResponse<AuthenticationResponse> authenticate(@RequestBody AuthenticationRequest request){
-        boolean result = authenticationService.authenticate(request);
+        var result = authenticationService.authenticate(request);
         return ApiResponse.<AuthenticationResponse>builder()
                 .message("Đăng nhập thành công")
-                .result(AuthenticationResponse.builder()
-                .authenticated(result)
-                .build())
+                .result(result)
                 .build();
     }
     
+    @PostMapping("/introspect")
+    ApiResponse<IntrospecResponse> authenticate(@RequestBody IntrospecRequest request) throws JOSEException, ParseException{
+        
+        var result = authenticationService.introspec(request);
+        return ApiResponse.<IntrospecResponse>builder()
+                .message("Verified token")
+                .result(result)
+                .build();
+    
+    }
     
 }

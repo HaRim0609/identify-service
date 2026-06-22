@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{layout/main :: html(content=~{::section})}">
+<body>
+
+<section>
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h2><i class="bi bi-calendar-check"></i> <span th:text="#{page.attendance.list.title}">Attendance List</span></h2>
+        <a th:href="@{/attendances/create}" class="btn btn-primary">
+            <i class="bi bi-plus-circle"></i> <span th:text="#{button.add}">Add New</span>
+        </a>
+    </div>
+
+    <!-- Filter Form -->
+    <div class="card mb-4">
+        <div class="card-body">
+            <form th:action="@{/attendances}" th:object="${criteria}" method="get" class="row g-3 align-items-end">
+                <div class="col-md-3">
+                    <label class="form-label" th:text="#{label.from_date}">From Date</label>
+                    <input type="date" class="form-control" th:field="*{fromDate}">
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label" th:text="#{label.to_date}">To Date</label>
+                    <input type="date" class="form-control" th:field="*{toDate}">
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label" th:text="#{label.employee}">Employee</label>
+                    <select class="form-select" th:field="*{employeeId}">
+                        <option value="" th:text="#{label.all_employees}">-- All Employees --</option>
+                        <option th:each="emp : ${employees}"
+                                th:value="${emp.id}"
+                                th:text="${emp.fullName}"></option>
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label" th:text="#{label.status}">Status</label>
+                    <select class="form-select" th:field="*{status}">
+                        <option value="" th:text="#{label.all}">-- All --</option>
+                        <option th:each="st : ${statuses}"
+                                th:value="${st}"
+                                th:text="#{${'attendance.status.' + st.name()}}"></option>
+                    </select>
+                </div>
+                <div class="col-md-1">
+                    <button type="submit" class="btn btn-secondary w-100"><i class="bi bi-search"></i></button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Total Hours -->
+    <div class="alert alert-info" th:if="${totalWorkingHours != null}">
+        <strong th:text="#{label.total_working_hours}">Total Working Hours:</strong> <span th:text="${totalWorkingHours}"></span>
+    </div>
+
+    <!-- Data Table -->
+    <div class="card">
+        <div class="card-body p-0 table-responsive">
+            <table class="table table-hover table-striped mb-0">
+                <thead class="table-light">
+                <tr>
+                    <th th:text="#{table.date}">Date</th>
+                    <th th:text="#{table.employee}">Employee</th>
+                    <th th:text="#{table.check_in}">Check-in</th>
+                    <th th:text="#{table.check_out}">Check-out</th>
+                    <th th:text="#{table.total_hours}">Total Hours</th>
+                    <th th:text="#{table.status}">Status</th>
+                    <th class="text-end" th:text="#{table.actions}">Actions</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:if="${slice.empty}">
+                    <td colspan="7" class="text-center py-3 text-muted" th:text="#{message.no_data}">No attendance data found.</td>
+                </tr>
+                <tr th:each="att : ${slice.content}">
+                    <td th:text="${#temporals.format(att.attendanceDate, #messages.msg('format.date'))}"></td>
+                    <td th:text="${att.employee.fullName}"></td>
+                    <td th:text="${att.checkInTime != null ? #temporals.format(att.checkInTime, #messages.msg('format.time')) : '-'}"></td>
+                    <td th:text="${att.checkOutTime != null ? #temporals.format(att.checkOutTime, #messages.msg('format.time')) : '-'}"></td>
+                    <td th:text="${att.workingHoursFormatted}"></td>
+                    <td>
+                        <span class="badge" 
+                              th:classappend="${att.status.name() == 'PRESENT' ? 'bg-success' : (att.status.name() == 'LATE' ? 'bg-warning text-dark' : 'bg-danger')}"
+                              th:text="#{${'attendance.status.' + att.status.name()}}">
+                        </span>
+                    </td>
+                    <td class="text-end">
+                        <a th:href="@{/attendances/detail/{id}(id=${att.id})}" class="btn btn-sm btn-outline-info" th:title="#{button.view_detail}">
+                            <i class="bi bi-eye"></i>
+                        </a>
+                        <a th:href="@{/attendances/edit/{id}(id=${att.id})}" class="btn btn-sm btn-outline-primary" th:title="#{button.edit}">
+                            <i class="bi bi-pencil"></i>
+                        </a>
+                        <form th:action="@{/attendances/delete/{id}(id=${att.id})}" method="post" class="d-inline">
+                            <button type="submit" class="btn btn-sm btn-outline-danger" th:title="#{button.delete}" th:attr="data-confirm=#{confirm.delete}">
+                                <i class="bi bi-trash"></i>
+                            </button>
+                        </form>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Pagination -->
+    <div class="d-flex justify-content-between align-items-center mt-3" th:if="${!slice.empty}">
+        <div>
+            <span th:text="#{label.page}">Page</span> <span th:text="${currentPage + 1}">1</span>
+        </div>
+        <div>
+            <a th:if="${slice.hasPrevious()}" 
+               th:href="@{/attendances(page=${currentPage - 1}, fromDate=${criteria.fromDate}, toDate=${criteria.toDate}, employeeId=${criteria.employeeId}, status=${criteria.status})}" 
+               class="btn btn-sm btn-outline-secondary">
+               <i class="bi bi-chevron-left"></i> <span th:text="#{button.prev_page}">Previous</span>
+            </a>
+            <a th:if="${slice.hasNext()}" 
+               th:href="@{/attendances(page=${currentPage + 1}, fromDate=${criteria.fromDate}, toDate=${criteria.toDate}, employeeId=${criteria.employeeId}, status=${criteria.status})}" 
+               class="btn btn-sm btn-outline-secondary">
+               <span th:text="#{button.next_page}">Next</span> <i class="bi bi-chevron-right"></i>
+            </a>
+        </div>
+    </div>
+
+</section>
+
+</body>
+</html>

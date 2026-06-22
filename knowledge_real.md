@@ -33,4 +33,12 @@
 			<!-- <scope>test</scope> -->
 		</dependency>
     - Ngoài ra những phần nào muốn validate ta cần thêm @Valid vào trước để có thể validate dữ liệu
-    
+
+- Các bước để tạo 1 token: 
+    - Cần 1 header tựa như trọn thuật toán
+    - Tạo payload hay body
+    - Tạo ra Object từ header và payload
+    - Ký - là 1 đoạn mã 256 bits 
+
+- #8: Kiến trúc Spring Security
+    - 

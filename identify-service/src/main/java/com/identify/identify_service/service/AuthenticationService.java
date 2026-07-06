@@ -4,6 +4,7 @@ import java.text.ParseException;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.Date;
+import java.util.StringJoiner;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -14,6 +15,7 @@ import com.identify.identify_service.dto.request.AuthenticationRequest;
 import com.identify.identify_service.dto.request.IntrospecRequest;
 import com.identify.identify_service.dto.response.AuthenticationResponse;
 import com.identify.identify_service.dto.response.IntrospecResponse;
+import com.identify.identify_service.entity.User;
 import com.identify.identify_service.exception.AppException;
 import com.identify.identify_service.exception.ErrorCode;
 import com.identify.identify_service.repository.UserRepository;
@@ -63,11 +65,11 @@ public class AuthenticationService {
         
     }
 
-    private String generateToken(String username){
+    private String generateToken(User user){
         JWSHeader header = new JWSHeader(JWSAlgorithm.HS512);
-        JWTClaimsSet jwtClaimsSet = new JWTClaimsSet.Builder().subject(username).issuer("identify-service").issueTime(new Date()).expirationTime(new Date(
+        JWTClaimsSet jwtClaimsSet = new JWTClaimsSet.Builder().subject(user.getUsername()).issuer("identify-service").issueTime(new Date()).expirationTime(new Date(
             Instant.now().plus(1, ChronoUnit.HOURS).toEpochMilli()
-        )).claim("customClaim", "Custom").build();
+        )).claim("scope", "Custom").build();
 
         Payload payload = new Payload(jwtClaimsSet.toJSONObject());
         JWSObject jwsObject = new JWSObject(header, payload);
@@ -81,6 +83,11 @@ public class AuthenticationService {
             log.error("Cannot create token",e);
             throw new RuntimeException(e);
         }
+    }
+
+    private String builderScope(User user){
+        StringJoiner stringJoiner = new StringJoiner("");
+            
     }
 
     public IntrospecResponse introspec(IntrospecRequest request) throws JOSEException, ParseException{

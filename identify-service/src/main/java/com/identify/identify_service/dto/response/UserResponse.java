@@ -1,6 +1,8 @@
 package com.identify.identify_service.dto.response;
 
 import java.time.LocalDate;
+import java.util.Set;
+
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -16,8 +18,8 @@ public class UserResponse {
     long id;
 
     String username;
-    String password;
     String firstName;
     String lastName;
     LocalDate dab;
+    Set<String> roles;
 }

@@ -21,9 +21,11 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import lombok.extern.slf4j.Slf4j;
 // import org.springframework.web.bind.annotation.RequestParam;
 
 
@@ -33,6 +35,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 @RequestMapping("/users")
 @RequiredArgsConstructor 
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
+@Slf4j
 public class UserController {
     // @Autowired // Annotation này cho phép Spring tự động tiêm (inject) một instance của UserService vào controller. 
     UserService userService;
@@ -46,18 +49,28 @@ public class UserController {
     }
 
     @GetMapping
-    List<User> getUsers(){
-        return userService.getAllUsers();
+    ApiResponse<List<User>> getUsers(){
+        // Get information of the currently authenticated user from the security context
+        var authentication = SecurityContextHolder.getContext().getAuthentication();
+        log.info("Username: {}", authentication.getName());
+        authentication.getAuthorities().forEach(grantedAuthority -> log.info((grantedAuthority.getAuthority())));
+        return ApiResponse.<List<User>>builder()
+                .result(userService.getAllUsers())
+                .build();
     }
     
     @GetMapping("/{userId}")
-    UserResponse getUser(@PathVariable("userId") long userID){
-        return userService.getUser(userID);
+    ApiResponse<UserResponse> getUser(@PathVariable("userId") long userID){
+        return ApiResponse.<UserResponse>builder()
+                .result(userService.getUser(userID))
+                .build();
     }
 
     @PutMapping("/{userId}")
-    UserResponse updateUser(@PathVariable("userId") long userId, @RequestBody UserUpdateRequest request){
-        return userService.updateUser(userId, request);
+    ApiResponse<UserResponse> updateUser(@PathVariable("userId") long userId, @RequestBody UserUpdateRequest request){
+        return ApiResponse.<UserResponse>builder()
+                .result(userService.updateUser(userId, request))
+                .build();
     }
 
     @DeleteMapping("{userId}")

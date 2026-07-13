@@ -6,6 +6,7 @@ import java.time.temporal.ChronoUnit;
 import java.util.Date;
 import java.util.StringJoiner;
 
+import org.springframework.util.CollectionUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -57,7 +58,7 @@ public class AuthenticationService {
         // System.out.println(passwordEncoder.matches(request.getPassword(), user.getPassword()));
         if (!authenticated) throw new AppException(ErrorCode.UNAUTHENTICATED);
 
-        var token = generateToken(request.getUsername());
+        var token = generateToken(user);
         return AuthenticationResponse.builder()
         .token(token)
         .build();
@@ -69,7 +70,7 @@ public class AuthenticationService {
         JWSHeader header = new JWSHeader(JWSAlgorithm.HS512);
         JWTClaimsSet jwtClaimsSet = new JWTClaimsSet.Builder().subject(user.getUsername()).issuer("identify-service").issueTime(new Date()).expirationTime(new Date(
             Instant.now().plus(1, ChronoUnit.HOURS).toEpochMilli()
-        )).claim("scope", "Custom").build();
+        )).claim("scope", builderScope(user)).build();
 
         Payload payload = new Payload(jwtClaimsSet.toJSONObject());
         JWSObject jwsObject = new JWSObject(header, payload);
@@ -86,8 +87,11 @@ public class AuthenticationService {
     }
 
     private String builderScope(User user){
-        StringJoiner stringJoiner = new StringJoiner("");
-            
+        StringJoiner stringJoiner = new StringJoiner(" ");
+        if (!CollectionUtils.isEmpty(user.getRoles()))
+            user.getRoles().forEach(s -> stringJoiner.add(s));
+        
+        return stringJoiner.toString();
     }
 
     public IntrospecResponse introspec(IntrospecRequest request) throws JOSEException, ParseException{
